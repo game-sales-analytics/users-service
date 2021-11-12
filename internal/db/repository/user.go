@@ -23,6 +23,8 @@ type NewUserToSave struct {
 	ID           string
 	Email        string
 	Password     string
+	FirstName    string
+	LastName     string
 	RegisteredAt time.Time
 }
 
@@ -32,6 +34,8 @@ func (r *Repo) SaveNewUser(ctx context.Context, user NewUserToSave) error {
 		{Key: "registered_at", Value: user.RegisteredAt.Format(time.RFC3339)},
 		{Key: "email", Value: user.Email},
 		{Key: "password", Value: user.Password},
+		{Key: "first_name", Value: user.FirstName},
+		{Key: "last_name", Value: user.LastName},
 	}
 	_, err := r.collections.Users.InsertOne(ctx, userDoc)
 	return err
@@ -71,4 +75,40 @@ func (r *Repo) GetUserLoginInfo(ctx context.Context, email string) (*UserLoginIn
 		Password: passwd,
 		ID:       id,
 	}, nil
+}
+
+func (r *Repo) EmailExists(ctx context.Context, email string) (bool, error) {
+	filter := bson.M{
+		"email": email,
+	}
+	return r.userWithFilterExists(ctx, filter)
+}
+
+func (r *Repo) UserWithIDExists(ctx context.Context, userID string) (bool, error) {
+	filter := bson.M{
+		"id": userID,
+	}
+	return r.userWithFilterExists(ctx, filter)
+}
+
+func (r *Repo) userWithFilterExists(ctx context.Context, filter bson.M) (bool, error) {
+	projection := bson.D{}
+	opts := options.FindOne().SetProjection(projection)
+	doc := bson.M{}
+	result := r.collections.Users.FindOne(ctx, filter, opts)
+	if err := result.Err(); nil != err {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return false, nil
+		}
+		return false, err
+	}
+	if err := result.Decode(&doc); nil != err {
+		return false, err
+	}
+
+	if userID, ok := doc["_id"].(string); !ok || len(userID) > 0 {
+		return true, nil
+	}
+
+	return false, errors.New("unexpected situation")
 }
