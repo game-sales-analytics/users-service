@@ -3,7 +3,6 @@ package grpcsrv
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"google.golang.org/grpc/codes"
@@ -18,7 +17,7 @@ import (
 )
 
 func (s server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterReply, error) {
-	s.logger.WithField("form", fmt.Sprintf("%#v", in)).Debug("handling registration request")
+	s.logger.Debug("handling registration request")
 
 	form := validate.RegisterForm{
 		Email:                in.Form.Email,
