@@ -37,7 +37,7 @@ func Connect(ctx context.Context, logger *logrus.Logger, cfg *config.DatabaseCon
 
 	logger.Trace("connecting database")
 	client, err := mongo.Connect(ctx, clientOptions)
-	if err != nil {
+	if nil != err {
 		return nil, err
 	}
 
