@@ -47,15 +47,15 @@ func generateToken(userID, secret string) (string, error) {
 	return string(serialized), err
 }
 
-func verifyToken(token, secret string) (TokenVerificationResult, error) {
+func verifyToken(token, secret string) (*TokenVerificationResult, error) {
 	parsedToken, err := jwt.Parse([]byte(token), jwt.WithVerify(jwa.HS512, []byte(secret)))
 	if nil != err {
-		return TokenVerificationResult{}, err
+		return nil, err
 	}
 
 	out := TokenVerificationResult{
 		UserID: parsedToken.Subject(),
 	}
 
-	return out, nil
+	return &out, nil
 }

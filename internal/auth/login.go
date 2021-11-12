@@ -21,29 +21,29 @@ type LoginWithEmailCreds struct {
 	Password string
 }
 
-func (a authsrv) LoginWithEmail(ctx context.Context, creds LoginWithEmailCreds) (LoginResult, error) {
+func (a authsrv) LoginWithEmail(ctx context.Context, creds LoginWithEmailCreds) (*LoginResult, error) {
 	user, err := a.repo.GetUserLoginInfo(ctx, creds.Email)
 	if nil != err {
 		if errors.Is(err, repository.ErrUserNotExists) {
 			randSpan := rand.Int63n(251)
 			time.Sleep(time.Millisecond * time.Duration((4736 + randSpan)))
-			return LoginResult{}, errors.New("unauthorized")
+			return nil, errors.New("unauthorized")
 		}
 
-		return LoginResult{}, errors.New("internal")
+		return nil, errors.New("internal")
 	}
 
 	matched, err := passhash.Verify(creds.Password, user.Password)
 	if nil != err {
-		return LoginResult{}, errors.New("internal")
+		return nil, errors.New("internal")
 	}
 	if !matched {
-		return LoginResult{}, errors.New("unauthorized")
+		return nil, errors.New("unauthorized")
 	}
 
 	token, err := generateToken(user.ID, a.cfg.Secret)
 	if nil != err {
-		return LoginResult{}, errors.New("internal")
+		return nil, errors.New("internal")
 	}
 
 	loginRecord := repository.NewUserLoginToSave{
@@ -54,10 +54,10 @@ func (a authsrv) LoginWithEmail(ctx context.Context, creds LoginWithEmailCreds) 
 		UserDeviceUserAgent: creds.UserDeviceUserAgent,
 	}
 	if err := a.repo.SaveNewUserLogin(ctx, loginRecord); nil != err {
-		return LoginResult{}, err
+		return nil, err
 	}
 
-	return LoginResult{
+	return &LoginResult{
 		Token: token,
 	}, nil
 }
