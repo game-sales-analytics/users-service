@@ -3,6 +3,7 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "GrpcUsersService";
+option go_package = "/pb";
 
 package userssrv;
 
