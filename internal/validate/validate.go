@@ -15,6 +15,7 @@ type NormalizedForm struct {
 type Validator interface {
 	ValidateRegisterForm(ctx context.Context, form RegisterForm) (*NormalizedForm, error)
 	ValidateLoginForm(ctx context.Context, form LoginForm) error
+	ValidateAuthenticateForm(ctx context.Context, form AuthenticateForm) error
 }
 
 type validator struct {
