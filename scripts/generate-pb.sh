@@ -2,4 +2,4 @@
 
 set -ex
 
-protoc --go_out=./internal  --go-grpc_out=./internal api/api.proto
+protoc --go_out=./internal  --go-grpc_out=./internal api/userssrv.proto
