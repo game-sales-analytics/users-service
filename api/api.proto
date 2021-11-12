@@ -15,7 +15,9 @@ service UsersService {
 
 message PingRequest {}
 
-message PingReply {}
+message PingReply {
+  bool pong = 1;
+}
 
 message LoginWithEmailRequest {
   message User {
