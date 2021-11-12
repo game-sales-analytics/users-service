@@ -3,6 +3,7 @@ module github.com/game-sales-analytics/users-service
 go 1.17
 
 require (
+	github.com/dimuska139/go-email-normalizer v1.2.0
 	github.com/gofrs/uuid v4.1.0+incompatible
 	github.com/lestrrat-go/jwx v1.2.10
 	github.com/rs/xid v1.3.0

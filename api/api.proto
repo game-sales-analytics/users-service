@@ -60,9 +60,7 @@ message RegisterReply {
     string first_name = 2;
     string last_name = 3;
     string email = 4;
-    string password = 5;
-    string password_confirmation = 6;
-    google.protobuf.Timestamp registered_at = 7;
+    google.protobuf.Timestamp registered_at = 5;
   }
   RegisteredUser registered_user = 1;
 }
