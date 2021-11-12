@@ -11,7 +11,7 @@ import (
 
 func generateToken(userID, secret string) (string, error) {
 	tokenID, err := uuid.NewV4()
-	if err != nil {
+	if nil != err {
 		return "", err
 	}
 
@@ -49,7 +49,7 @@ func generateToken(userID, secret string) (string, error) {
 
 func verifyToken(token, secret string) (TokenVerificationResult, error) {
 	parsedToken, err := jwt.Parse([]byte(token), jwt.WithVerify(jwa.HS512, []byte(secret)))
-	if err != nil {
+	if nil != err {
 		return TokenVerificationResult{}, err
 	}
 

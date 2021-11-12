@@ -15,7 +15,7 @@ func Verify(raw, hashed string) (bool, error) {
 
 func comparePasswordAndHash(raw, hashed string) (bool, error) {
 	p, salt, hash, err := decodeHash(hashed)
-	if err != nil {
+	if nil != err {
 		return false, err
 	}
 
@@ -35,7 +35,7 @@ func decodeHash(encodedHash string) (p *argon2HashParams, salt, hash []byte, err
 
 	var version int
 	_, err = fmt.Sscanf(parts[2], "v=%d", &version)
-	if err != nil {
+	if nil != err {
 		return nil, nil, nil, err
 	}
 	if version != argon2.Version {
@@ -43,18 +43,18 @@ func decodeHash(encodedHash string) (p *argon2HashParams, salt, hash []byte, err
 	}
 
 	p = &argon2HashParams{}
-	if _, err = fmt.Sscanf(parts[3], "m=%d,t=%d,p=%d", &p.memory, &p.iterations, &p.parallelism); err != nil {
+	if _, err = fmt.Sscanf(parts[3], "m=%d,t=%d,p=%d", &p.memory, &p.iterations, &p.parallelism); nil != err {
 		return nil, nil, nil, err
 	}
 
 	salt, err = base64.RawStdEncoding.Strict().DecodeString(parts[4])
-	if err != nil {
+	if nil != err {
 		return nil, nil, nil, err
 	}
 	p.saltLength = uint32(len(salt))
 
 	hash, err = base64.RawStdEncoding.Strict().DecodeString(parts[5])
-	if err != nil {
+	if nil != err {
 		return nil, nil, nil, err
 	}
 	p.keyLength = uint32(len(hash))

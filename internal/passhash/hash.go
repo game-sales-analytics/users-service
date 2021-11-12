@@ -33,7 +33,7 @@ func HashPassword(raw string) (string, error) {
 
 func generateFromPassword(password string, params argon2HashParams) (string, error) {
 	salt, err := generateRandomBytes(params.saltLength)
-	if err != nil {
+	if nil != err {
 		return "", ErrGenerateRandom
 	}
 

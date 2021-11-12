@@ -2,4 +2,4 @@
 
 set -ex
 
-docker-compose --project-name isac --file ./deploy/compose.yml down --rmi local
+docker-compose --project-name gsa --file ./deploy/compose.yml down --rmi local

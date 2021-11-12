@@ -19,6 +19,7 @@ ARG PORT=5000
 WORKDIR /
 
 COPY --from=build /app/bin/userssrv /userssrv
+COPY --from=build /app/bin/ping /ping
 
 EXPOSE ${PORT}
 

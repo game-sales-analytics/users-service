@@ -1,3 +1,7 @@
+generate-pb:
+	./scripts/generate-pb.sh
+.PHONY: generate-pb
+
 clean:
 	./scripts/clean.sh
 .PHONY: clean
