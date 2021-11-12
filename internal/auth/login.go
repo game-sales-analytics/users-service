@@ -41,7 +41,7 @@ func (a authsrv) LoginWithEmail(ctx context.Context, creds LoginWithEmailCreds) 
 		return LoginResult{}, errors.New("unauthorized")
 	}
 
-	token, err := generateToken(user.ID, a.cfg.Key)
+	token, err := generateToken(user.ID, a.cfg.Secret)
 	if nil != err {
 		return LoginResult{}, errors.New("internal")
 	}

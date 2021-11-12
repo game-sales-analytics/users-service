@@ -63,11 +63,11 @@ func readEnvironmetVariablesOrUseDefaults(logger *logrus.Logger) (Config, error)
 		conf.Database.Name = value
 	}
 
-	if value, exists := os.LookupEnv("JWT_KEY"); exists {
-		logger.WithField("variable", "JWT_KEY").WithField("value", strings.Repeat("*", len(value))).Debug("using provided environment variable")
-		conf.Jwt.Key = value
+	if value, exists := os.LookupEnv("JWT_SECRET"); exists {
+		logger.WithField("variable", "JWT_SECRET").WithField("value", strings.Repeat("*", len(value))).Debug("using provided environment variable")
+		conf.Jwt.Secret = value
 	} else {
-		return Config{}, errors.New("'JWT_KEY' environment variable is required")
+		return Config{}, errors.New("'JWT_SECRET' environment variable is required")
 	}
 
 	return conf, nil

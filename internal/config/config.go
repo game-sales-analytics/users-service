@@ -15,7 +15,7 @@ type DatabaseConfig struct {
 }
 
 type JwtConfig struct {
-	Key string
+	Secret string
 }
 
 type Config struct {

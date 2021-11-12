@@ -15,7 +15,7 @@ func getDefaults() Config {
 			UseAuth:  false,
 		},
 		Jwt: JwtConfig{
-			Key: "",
+			Secret: "",
 		},
 	}
 }
