@@ -4,6 +4,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func Load(logger *logrus.Logger) (Config, error) {
+func Load(logger *logrus.Entry) (Config, error) {
 	return readEnvironmetVariablesOrUseDefaults(logger)
 }

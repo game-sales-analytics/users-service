@@ -19,11 +19,11 @@ type Validator interface {
 }
 
 type validator struct {
-	logger *logrus.Logger
+	logger *logrus.Entry
 	repo   *repository.Repo
 }
 
-func New(logger *logrus.Logger, repo *repository.Repo) Validator {
+func New(logger *logrus.Entry, repo *repository.Repo) Validator {
 	return validator{
 		logger,
 		repo,

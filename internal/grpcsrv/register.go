@@ -33,6 +33,7 @@ func (s server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regis
 			return nil, status.Errorf(codes.InvalidArgument, `{"field":"%s","error":"%s"}`, validationErr.Field, validationErr.Message)
 		}
 
+		s.logger.WithError(err).WithField("err_code", "E_VALIDATE_REGISTER_FORM").Error("failed validating register form")
 		return nil, errorInternal
 	}
 

@@ -33,6 +33,7 @@ func (s server) Authenticate(ctx context.Context, in *pb.AuthenticateRequest) (*
 		if errors.Is(err, auth.ErrTokenNotVerified) {
 			return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 		}
+
 		if errors.Is(err, auth.ErrUserNotExists) {
 			return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 		}

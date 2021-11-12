@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func readEnvironmetVariablesOrUseDefaults(logger *logrus.Logger) (Config, error) {
+func readEnvironmetVariablesOrUseDefaults(logger *logrus.Entry) (Config, error) {
 	logger.Trace("loading default configuration")
 	conf := getDefaults()
 
