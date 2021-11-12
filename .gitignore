@@ -22,3 +22,6 @@
 
 # Editor configuration files
 /.vscode/
+
+# Environment file
+/.env
