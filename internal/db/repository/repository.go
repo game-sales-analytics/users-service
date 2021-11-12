@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -11,10 +12,12 @@ type Collections struct {
 
 type Repo struct {
 	collections Collections
+	logger      *logrus.Entry
 }
 
-func New(collections Collections) Repo {
+func New(logger *logrus.Entry, collections Collections) Repo {
 	return Repo{
 		collections,
+		logger,
 	}
 }

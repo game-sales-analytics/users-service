@@ -9,6 +9,6 @@ import (
 
 type DB struct {
 	client *mongo.Client
-	Logger *logrus.Logger
+	logger *logrus.Entry
 	Repo   repository.Repo
 }

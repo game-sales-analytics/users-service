@@ -19,7 +19,7 @@ type GrpcService interface {
 
 type server struct {
 	pb.UnimplementedUsersServiceServer
-	logger    *logrus.Logger
+	logger    *logrus.Entry
 	repo      *repository.Repo
 	validator validate.Validator
 	auth      auth.Auth

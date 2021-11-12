@@ -53,7 +53,9 @@ func (a authsrv) LoginWithEmail(ctx context.Context, creds LoginWithEmailCreds) 
 	loginRecordID, err := id.GenerateUserLoginID()
 	if nil != err {
 		a.logger.WithError(err).WithField("err_code", "E_GENERATE_NEW_LOGIN_RECORD_ID").Error("failed generating id for new user login record")
+		return nil, ErrInternal
 	}
+
 	loginRecord := repository.NewUserLoginToSave{
 		ID:                  loginRecordID,
 		UserID:              user.ID,

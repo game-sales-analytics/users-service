@@ -9,13 +9,13 @@ import (
 
 type authsrv struct {
 	repo   *repository.Repo
-	logger *logrus.Logger
+	logger *logrus.Entry
 	cfg    *config.JwtConfig
 }
 
 func New(
 	repo *repository.Repo,
-	logger *logrus.Logger,
+	logger *logrus.Entry,
 	cfg *config.JwtConfig,
 ) Auth {
 	return authsrv{

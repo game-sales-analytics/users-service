@@ -55,6 +55,7 @@ func (v validator) ValidateRegisterForm(ctx context.Context, form RegisterForm) 
 	}
 
 	if exists, err := v.repo.NormalizedEmailExists(ctx, normalizedEmail); nil != err {
+		v.logger.WithError(err).WithField("err_code", "E_CHECK_NORMALIZED_EMAIL_EXISTENCE").Error("failed checking normalized email existence")
 		return nil, err
 	} else if exists {
 		return nil, &ValidationError{Field: "email", Message: "duplicate email address"}

@@ -20,7 +20,7 @@ func (a *authsrv) generateToken(userID, secret string) (*GeneratedToken, error) 
 	tokenID, err := uuid.NewV4()
 	if nil != err {
 		a.logger.WithError(err).WithField("err_code", "E_GENERATE_JWT_TOKEN_ID").Error("failed generating jwt token id")
-		return nil, err
+		return nil, errors.New("unable to generate token id")
 	}
 
 	token := jwt.New()
@@ -61,7 +61,8 @@ func (a *authsrv) generateToken(userID, secret string) (*GeneratedToken, error) 
 		return nil, errors.New("unable to set auth token subject key")
 	}
 
-	serialized, err := jwt.Sign(token, jwa.HS512, []byte(secret))
+	opts := []jwt.SignOption{}
+	serialized, err := jwt.Sign(token, jwa.HS512, []byte(secret), opts...)
 	if nil != err {
 		a.logger.WithError(err).WithField("err_code", "E_SIGN_JWT_TOKEN").Error("failed signing jwt token")
 		return nil, errors.New("unable to sign auth token")
@@ -89,7 +90,7 @@ func verifyToken(token, secret string) (*tokenDecodeResult, error) {
 	}
 	parsedToken, err := jwt.Parse([]byte(token), parseOptions...)
 	if nil != err {
-		return nil, err
+		return nil, errors.New("parsing and verifying token failed")
 	}
 
 	out := tokenDecodeResult{

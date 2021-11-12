@@ -48,6 +48,7 @@ func (r *Repo) GetUserLoginInfo(ctx context.Context, email string) (*UserLoginIn
 		"email": email,
 	}
 	projection := bson.D{
+		bson.E{Key: "_id", Value: 0},
 		bson.E{Key: "id", Value: 1},
 		bson.E{Key: "password", Value: 1},
 	}
@@ -58,18 +59,23 @@ func (r *Repo) GetUserLoginInfo(ctx context.Context, email string) (*UserLoginIn
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, ErrUserNotExists
 		}
-		return nil, err
+		r.logger.WithError(err).WithField("err_code", "E_FIND_USER_LOGIN_INFO").Error("unable to retrieve user login information")
+		return nil, errors.New("unable to retrieve user login information")
 	}
+
 	if err := result.Decode(&user); nil != err {
-		return nil, err
+		r.logger.WithError(err).WithField("err_code", "E_DECODE_DOCUMENT").Error("unable to decode user login information document")
+		return nil, errors.New("unable to decode retrieved user login information")
 	}
 
 	passwd, ok := user["password"].(string)
 	if !ok {
+		r.logger.WithField("err_code", "E_CAST_USER_PASSWORD_FIELD").Error("could not parse user document password field")
 		return nil, errors.New("could not parse user password")
 	}
 	id, ok := user["id"].(string)
 	if !ok {
+		r.logger.WithField("err_code", "E_CAST_USER_ID_FIELD").Error("could not parse user document id field")
 		return nil, errors.New("could not parse user id")
 	}
 
@@ -102,9 +108,13 @@ func (r *Repo) userWithFilterExists(ctx context.Context, filter bson.M) (bool, e
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return false, nil
 		}
+
+		r.logger.WithError(err).WithField("err_code", "E_RETRIEVE_USER_DOCUMENT").Error("failed retrieving user document")
 		return false, err
 	}
+
 	if err := result.Decode(&doc); nil != err {
+		r.logger.WithError(err).WithField("err_code", "E_DECODE_DOCUMENT").Error("unable to decode user document")
 		return false, err
 	}
 
@@ -112,6 +122,7 @@ func (r *Repo) userWithFilterExists(ctx context.Context, filter bson.M) (bool, e
 		return true, nil
 	}
 
+	r.logger.WithField("err_code", "E_UNEXPECTED_LOGICAL_SITUATION").Error("expected to not to reach this branch")
 	return false, errors.New("unexpected situation")
 }
 
@@ -136,18 +147,25 @@ func (r *Repo) GetUserAuthenticationInfo(ctx context.Context, userID string) (*U
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, ErrUserNotExists
 		}
+
+		r.logger.WithError(err).WithField("err_code", "E_RETRIEVE_USER_DOCUMENT").Error("failed retrieving user authentication information document")
 		return nil, err
 	}
+
 	if err := result.Decode(&user); nil != err {
+		r.logger.WithError(err).WithField("err_code", "E_DECODE_DOCUMENT").Error("unable to decode user authentication information document")
 		return nil, err
 	}
 
 	firstName, ok := user["first_name"].(string)
 	if !ok {
+		r.logger.WithField("err_code", "E_CAST_USER_FIRST_NAME_FIELD").Error("could not parse user document first_name field")
 		return nil, errors.New("could not parse user first_name")
 	}
+
 	lastName, ok := user["last_name"].(string)
 	if !ok {
+		r.logger.WithField("err_code", "E_CAST_USER_LAST_NAME_FIELD").Error("could not parse user document last_name field")
 		return nil, errors.New("could not parse user last_name")
 	}
 

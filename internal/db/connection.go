@@ -13,7 +13,7 @@ import (
 	"github.com/game-sales-analytics/users-service/internal/db/repository"
 )
 
-func Connect(ctx context.Context, logger *logrus.Logger, cfg *config.DatabaseConfig) (*DB, error) {
+func Connect(ctx context.Context, logger *logrus.Entry, cfg *config.DatabaseConfig) (*DB, error) {
 	addr := fmt.Sprintf("mongodb://%s:%d", cfg.Host, cfg.Port)
 	logger.WithField("address", addr).Debug("connecting database using configured address")
 
@@ -50,8 +50,9 @@ func Connect(ctx context.Context, logger *logrus.Logger, cfg *config.DatabaseCon
 	db := client.Database(cfg.Name)
 	return &DB{
 		client: client,
-		Logger: logger,
+		logger: logger,
 		Repo: repository.New(
+			logger.WithField("srv", "repository"),
 			repository.Collections{
 				Users:      db.Collection(UsersCollectionName),
 				UserLogins: db.Collection(UserLoginsCollectionName),
@@ -61,6 +62,6 @@ func Connect(ctx context.Context, logger *logrus.Logger, cfg *config.DatabaseCon
 }
 
 func (db *DB) Disconnect() error {
-	db.Logger.Trace("closing database connection")
+	db.logger.Trace("closing database connection")
 	return db.client.Disconnect(context.Background())
 }
