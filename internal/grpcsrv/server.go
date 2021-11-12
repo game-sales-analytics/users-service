@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
+	"github.com/game-sales-analytics/users-service/internal/auth"
 	"github.com/game-sales-analytics/users-service/internal/db/repository"
 	"github.com/game-sales-analytics/users-service/internal/pb"
 	"github.com/game-sales-analytics/users-service/internal/validate"
@@ -21,6 +22,7 @@ type server struct {
 	logger    *logrus.Logger
 	repo      *repository.Repo
 	validator validate.Validator
+	auth      auth.Auth
 }
 
 func (s server) Listen(host string, port uint) error {

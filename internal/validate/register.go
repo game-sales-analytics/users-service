@@ -49,12 +49,12 @@ func (v validator) ValidateRegisterForm(ctx context.Context, form RegisterForm) 
 		return nil, &ValidationError{Field: "email", Message: "invalid email"}
 	}
 
-	normalizedEmail, err := normalize.NormalizeEmail(form.Email)
+	normalizedEmail, err := normalize.Email(form.Email)
 	if nil != err {
 		return nil, errors.New("failed normalizing email address")
 	}
 
-	if exists, err := v.repo.EmailExists(ctx, normalizedEmail); nil != err {
+	if exists, err := v.repo.NormalizedEmailExists(ctx, normalizedEmail); nil != err {
 		return nil, err
 	} else if exists {
 		return nil, &ValidationError{Field: "email", Message: "duplicate email address"}

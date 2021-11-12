@@ -20,12 +20,13 @@ var (
 )
 
 type NewUserToSave struct {
-	ID           string
-	Email        string
-	Password     string
-	FirstName    string
-	LastName     string
-	RegisteredAt time.Time
+	ID              string
+	Email           string
+	NormalizedEmail string
+	Password        string
+	FirstName       string
+	LastName        string
+	RegisteredAt    time.Time
 }
 
 func (r *Repo) SaveNewUser(ctx context.Context, user NewUserToSave) error {
@@ -33,6 +34,7 @@ func (r *Repo) SaveNewUser(ctx context.Context, user NewUserToSave) error {
 		{Key: "id", Value: user.ID},
 		{Key: "registered_at", Value: user.RegisteredAt.Format(time.RFC3339)},
 		{Key: "email", Value: user.Email},
+		{Key: "normalized_email", Value: user.NormalizedEmail},
 		{Key: "password", Value: user.Password},
 		{Key: "first_name", Value: user.FirstName},
 		{Key: "last_name", Value: user.LastName},
@@ -77,9 +79,9 @@ func (r *Repo) GetUserLoginInfo(ctx context.Context, email string) (*UserLoginIn
 	}, nil
 }
 
-func (r *Repo) EmailExists(ctx context.Context, email string) (bool, error) {
+func (r *Repo) NormalizedEmailExists(ctx context.Context, normalizedEmail string) (bool, error) {
 	filter := bson.M{
-		"email": email,
+		"normalized_email": normalizedEmail,
 	}
 	return r.userWithFilterExists(ctx, filter)
 }
