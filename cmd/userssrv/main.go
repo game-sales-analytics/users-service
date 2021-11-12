@@ -6,6 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/game-sales-analytics/users-service/internal/auth"
 	"github.com/game-sales-analytics/users-service/internal/config"
 	"github.com/game-sales-analytics/users-service/internal/db"
 	"github.com/game-sales-analytics/users-service/internal/grpcsrv"
@@ -50,7 +51,8 @@ func main() {
 	logger.Trace("connected to database")
 
 	validator := validate.New(logger, &database.Repo)
+	authSrv := auth.New(&database.Repo, logger, &conf.Jwt)
 
-	server := grpcsrv.New(logger, &database.Repo, validator)
+	server := grpcsrv.New(logger, &database.Repo, validator, authSrv)
 	logger.WithError(server.Listen(conf.Server.Host, conf.Server.Port)).Fatal("unable to start GRPC server")
 }
