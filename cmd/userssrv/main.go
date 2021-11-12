@@ -8,6 +8,7 @@ import (
 
 	"github.com/game-sales-analytics/users-service/internal/config"
 	"github.com/game-sales-analytics/users-service/internal/db"
+	"github.com/game-sales-analytics/users-service/internal/grpcsrv"
 )
 
 func main() {
@@ -47,7 +48,6 @@ func main() {
 	}()
 	logger.Trace("connected to database")
 
-	// logger.Trace("initializing grpc server")
-	// server := srv.Init(ctx, logger, &database.Repo, &conf)
-	// server.Listen(conf.Server.Host, conf.Server.Port)
+	server := grpcsrv.New(logger)
+	logger.WithError(server.Listen(conf.Server.Host, conf.Server.Port)).Fatal("unable to start GRPC server")
 }
