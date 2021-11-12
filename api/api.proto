@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcUsersService";
+
+package userssrv;
+
+service UsersService {
+  rpc Ping(PingRequest) returns (PingReply);
+  rpc LoginWithEmail(LoginWithEmailRequest) returns (LoginWithEmailReply);
+  rpc Register(RegisterRequest) returns (RegisterReply);
+  rpc Authenticate(AuthenticateRequest) returns (AuthenticateReply);
+}
+
+message PingRequest {}
+
+message PingReply {}
+
+message LoginWithEmailRequest {
+  message User {
+    string email = 1;
+    string password = 2;
+    message ContextualInfo {
+      string ip = 1;
+      string device_user_agent = 2;
+    }
+    ContextualInfo contextual_info = 3;
+  }
+  User user = 1;
+}
+
+message LoginWithEmailReply {
+  message AuthToken {
+    string id = 1;
+    string token = 2;
+    uint64 not_before_date_time = 3;
+    uint64 expiration_date_time = 4;
+  }
+  AuthToken auth_token = 1;
+}
+
+message RegisterRequest {
+  message Form {
+    string first_name = 1;
+    string last_name = 2;
+    string email = 3;
+    string password = 4;
+    string password_confirmation = 5;
+  }
+  Form form = 1;
+}
+
+message RegisterReply {
+  message RegisteredUser {
+    string id = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string email = 4;
+    string password = 5;
+    string password_confirmation = 6;
+    uint64 registered_at = 7;
+  }
+  RegisteredUser registered_user = 1;
+}
+
+message AuthenticateRequest { string token = 1; }
+
+message AuthenticateReply {
+  message AuthenticatedUser {
+    string id = 1;
+    string first_name = 2;
+    string last_name = 3;
+  }
+  AuthenticatedUser authenticated_user = 1;
+}
