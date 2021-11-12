@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
+	"github.com/game-sales-analytics/users-service/internal/db/repository"
 	"github.com/game-sales-analytics/users-service/internal/pb"
-	"github.com/sirupsen/logrus"
+	"github.com/game-sales-analytics/users-service/internal/validate"
 )
 
 type GrpcService interface {
@@ -16,7 +18,9 @@ type GrpcService interface {
 
 type server struct {
 	pb.UnimplementedUsersServiceServer
-	logger *logrus.Logger
+	logger    *logrus.Logger
+	repo      *repository.Repo
+	validator validate.Validator
 }
 
 func (s server) Listen(host string, port uint) error {
@@ -28,6 +32,6 @@ func (s server) Listen(host string, port uint) error {
 	}
 	var opts []grpc.ServerOption
 	grpcServer := grpc.NewServer(opts...)
-	pb.RegisterUsersServiceServer(grpcServer, server{})
+	pb.RegisterUsersServiceServer(grpcServer, s)
 	return grpcServer.Serve(lis)
 }
