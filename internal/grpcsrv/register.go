@@ -49,12 +49,13 @@ func (s server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regis
 	}
 
 	user := repository.NewUserToSave{
-		ID:           userID,
-		Email:        normalizedForm.Email,
-		FirstName:    in.Form.FirstName,
-		LastName:     in.Form.LastName,
-		Password:     hashedPasswd,
-		RegisteredAt: time.Now(),
+		ID:              userID,
+		Email:           in.Form.Email,
+		NormalizedEmail: normalizedForm.Email,
+		FirstName:       in.Form.FirstName,
+		LastName:        in.Form.LastName,
+		Password:        hashedPasswd,
+		RegisteredAt:    time.Now(),
 	}
 	if err := s.repo.SaveNewUser(ctx, user); nil != err {
 		s.logger.WithError(err).WithField("err_code", "E_SAVE_USER").Error("failed saving user")
