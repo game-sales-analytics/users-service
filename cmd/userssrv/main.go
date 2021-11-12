@@ -9,6 +9,7 @@ import (
 	"github.com/game-sales-analytics/users-service/internal/config"
 	"github.com/game-sales-analytics/users-service/internal/db"
 	"github.com/game-sales-analytics/users-service/internal/grpcsrv"
+	"github.com/game-sales-analytics/users-service/internal/validate"
 )
 
 func main() {
@@ -48,6 +49,8 @@ func main() {
 	}()
 	logger.Trace("connected to database")
 
-	server := grpcsrv.New(logger)
+	validator := validate.New(logger, &database.Repo)
+
+	server := grpcsrv.New(logger, &database.Repo, validator)
 	logger.WithError(server.Listen(conf.Server.Host, conf.Server.Port)).Fatal("unable to start GRPC server")
 }
