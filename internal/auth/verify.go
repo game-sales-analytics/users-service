@@ -2,19 +2,32 @@ package auth
 
 import (
 	"context"
+	"errors"
+
+	"github.com/game-sales-analytics/users-service/internal/db/repository"
 )
 
 func (a authsrv) VerifyToken(ctx context.Context, token string) (*TokenVerificationResult, error) {
-	verificationResult, err := verifyToken(token, a.cfg.Secret)
+	decodeRes, err := verifyToken(token, a.cfg.Secret)
 	if nil != err {
-		return nil, err
+		return nil, ErrTokenNotVerified
 	}
 
-	if exists, err := a.repo.UserWithIDExists(ctx, verificationResult.UserID); nil != err {
-		return nil, err
-	} else if !exists {
-		return nil, ErrUserNotExists
+	userAuthInfo, err := a.repo.GetUserAuthenticationInfo(ctx, decodeRes.userID)
+	if nil != err {
+		if errors.Is(err, repository.ErrUserNotExists) {
+			return nil, ErrUserNotExists
+		}
+		return nil, ErrInternal
 	}
 
-	return verificationResult, nil
+	out := TokenVerificationResult{
+		User: TokenVerificationResultUser{
+			ID:        decodeRes.userID,
+			FirstName: userAuthInfo.FirstName,
+			LastName:  userAuthInfo.LastName,
+		},
+	}
+
+	return &out, nil
 }

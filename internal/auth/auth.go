@@ -10,8 +10,14 @@ type Auth interface {
 	LoginWithEmail(ctx context.Context, creds LoginWithEmailCreds) (*LoginResult, error)
 }
 
+type TokenVerificationResultUser struct {
+	ID        string
+	FirstName string
+	LastName  string
+}
+
 type TokenVerificationResult struct {
-	UserID string
+	User TokenVerificationResultUser
 }
 
 type LoginResultToken struct {

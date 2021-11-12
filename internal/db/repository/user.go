@@ -114,3 +114,45 @@ func (r *Repo) userWithFilterExists(ctx context.Context, filter bson.M) (bool, e
 
 	return false, errors.New("unexpected situation")
 }
+
+type UserAuthenticationInfo struct {
+	FirstName string
+	LastName  string
+}
+
+func (r *Repo) GetUserAuthenticationInfo(ctx context.Context, userID string) (*UserAuthenticationInfo, error) {
+	filter := bson.M{
+		"id": userID,
+	}
+	projection := bson.D{
+		bson.E{Key: "_id", Value: 0},
+		bson.E{Key: "first_name", Value: 1},
+		bson.E{Key: "last_name", Value: 1},
+	}
+	opts := options.FindOne().SetProjection(projection)
+	user := bson.M{}
+	result := r.collections.Users.FindOne(ctx, filter, opts)
+	if err := result.Err(); nil != err {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, ErrUserNotExists
+		}
+		return nil, err
+	}
+	if err := result.Decode(&user); nil != err {
+		return nil, err
+	}
+
+	firstName, ok := user["first_name"].(string)
+	if !ok {
+		return nil, errors.New("could not parse user first_name")
+	}
+	lastName, ok := user["last_name"].(string)
+	if !ok {
+		return nil, errors.New("could not parse user last_name")
+	}
+
+	return &UserAuthenticationInfo{
+		FirstName: firstName,
+		LastName:  lastName,
+	}, nil
+}
