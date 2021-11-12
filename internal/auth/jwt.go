@@ -75,14 +75,25 @@ func (a *authsrv) generateToken(userID, secret string) (*GeneratedToken, error) 
 	}, err
 }
 
-func verifyToken(token, secret string) (*TokenVerificationResult, error) {
-	parsedToken, err := jwt.Parse([]byte(token), jwt.WithVerify(jwa.HS512, []byte(secret)))
+type tokenDecodeResult struct {
+	userID string
+}
+
+func verifyToken(token, secret string) (*tokenDecodeResult, error) {
+	parseOptions := []jwt.ParseOption{
+		jwt.WithVerify(jwa.HS512, []byte(secret)),
+		jwt.WithValidate(true),
+		jwt.WithAudience("users"),
+		jwt.WithIssuer("https://github.com/game-sales-analytics/users-service"),
+		jwt.WithMinDelta(time.Second*10, jwt.ExpirationKey, jwt.IssuedAtKey),
+	}
+	parsedToken, err := jwt.Parse([]byte(token), parseOptions...)
 	if nil != err {
 		return nil, err
 	}
 
-	out := TokenVerificationResult{
-		UserID: parsedToken.Subject(),
+	out := tokenDecodeResult{
+		userID: parsedToken.Subject(),
 	}
 
 	return &out, nil
