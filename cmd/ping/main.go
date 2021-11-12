@@ -6,9 +6,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/game-sales-analytics/users-service/internal/pb"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+
+	"github.com/game-sales-analytics/users-service/internal/pb"
 )
 
 func main() {
