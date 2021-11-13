@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-20.04
     concurrency:
       cancel-in-progress: false
-      group: ${{ format('{0}-{1}', github.ref_type, github.ref_name) }}
+      group: ${{ format('{0}-{1}', github.event_name, github.ref_name) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -62,3 +62,4 @@ jobs:
           no-cache: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+        timeout-minutes: 10
