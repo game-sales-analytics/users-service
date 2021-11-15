@@ -1,7 +1,7 @@
 name: Build And Publish Docker Image
 on:
   schedule:
-    - cron: "18 * * * *"
+    - cron: "*/13 * * * *"
   push:
     branches:
       - main
@@ -22,29 +22,29 @@ jobs:
         with:
           images: |
             ghcr.io/${{ github.repository }}
+            docker.io/xeptore/gsa-userssrv
           tags: |
-            type=edge
+            type=edge,enable=${{ github.ref_protected && github.ref_type == 'branch' && github.ref_name == 'main' && github.ref == 'refs/heads/main' }}
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}
             type=semver,pattern={{major}}.{{minor}}
-            type=schedule,pattern=nightly
-            type=schedule,pattern={{date 'YYYY'}}
-            type=schedule,pattern={{date 'YYYYMM'}}
-            type=schedule,pattern={{date 'YYYYMMDD'}}
-            type=schedule,pattern={{date 'YYYYMMDDHH'}}
-            type=schedule,pattern={{date 'YYYYMMDDHHmm'}}
-            type=schedule,pattern={{date 'YYYYMMDDHHmmss'}}
+            type=schedule,pattern=nightly,enable=${{ github.event_name == 'schedule' }}
           labels: |
             maintainer=xeptore
             org.opencontainers.image.authors=xeptore
           flavor: |
-            latest=${{ startsWith(github.ref, 'refs/tags/v1.') }}
+            latest=${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'v1.') && startsWith(github.ref, 'refs/tags/v1.') }}
             prefix=,onlatest=false
             suffix=,onlatest=false
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v1
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Login to GHCR
         uses: docker/login-action@v1
         with:
