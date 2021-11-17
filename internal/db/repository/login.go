@@ -18,7 +18,7 @@ type NewUserLoginToSave struct {
 func (r *Repo) SaveNewUserLogin(ctx context.Context, userLogin NewUserLoginToSave) error {
 	doc := bson.D{
 		{Key: "id", Value: userLogin.ID},
-		{Key: "logged_in_at", Value: userLogin.LoggedInAt.Format(time.RFC3339)},
+		{Key: "logged_in_at", Value: userLogin.LoggedInAt},
 		{Key: "user", Value: bson.D{
 			{Key: "id", Value: userLogin.UserID},
 			{Key: "ip", Value: userLogin.UserIPAddress},

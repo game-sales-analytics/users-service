@@ -32,7 +32,7 @@ type NewUserToSave struct {
 func (r *Repo) SaveNewUser(ctx context.Context, user NewUserToSave) error {
 	userDoc := bson.D{
 		{Key: "id", Value: user.ID},
-		{Key: "registered_at", Value: user.RegisteredAt.Format(time.RFC3339)},
+		{Key: "registered_at", Value: user.RegisteredAt},
 		{Key: "email", Value: user.Email},
 		{Key: "normalized_email", Value: user.NormalizedEmail},
 		{Key: "password", Value: user.Password},
