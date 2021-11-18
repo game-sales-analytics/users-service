@@ -24,7 +24,7 @@ jobs:
             ghcr.io/${{ github.repository }}
             docker.io/xeptore/gsa-userssrv
           tags: |
-            type=edge,enable=${{ github.ref_protected && github.ref_type == 'branch' && github.ref_name == 'main' && github.ref == 'refs/heads/main' }}
+            type=edge,enable=${{ github.event_name == 'push' && github.ref_protected && github.ref_type == 'branch' && github.ref_name == 'main' && github.ref == 'refs/heads/main' }}
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}
             type=semver,pattern={{major}}.{{minor}}
