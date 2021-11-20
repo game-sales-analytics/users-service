@@ -10,7 +10,7 @@ type AuthenticateForm struct {
 
 func (v validator) ValidateAuthenticateForm(ctx context.Context, form AuthenticateForm) error {
 	if len(form.Token) == 0 {
-		return &ValidationError{Field: "password", Message: "cannot be empty"}
+		return &ValidationError{Field: "auth-token", Message: "cannot be empty"}
 	}
 
 	return nil
