@@ -20,11 +20,11 @@ func (s server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regis
 	s.logger.Debug("handling registration request")
 
 	form := validate.RegisterForm{
-		Email:                in.Form.Email,
-		Password:             in.Form.Password,
-		PasswordConfirmation: in.Form.PasswordConfirmation,
-		FirstName:            in.Form.FirstName,
-		LastName:             in.Form.LastName,
+		Email:                in.Email,
+		Password:             in.Password,
+		PasswordConfirmation: in.PasswordConfirmation,
+		FirstName:            in.FirstName,
+		LastName:             in.LastName,
 	}
 	normalizedForm, err := s.validator.ValidateRegisterForm(ctx, form)
 	if nil != err {
@@ -43,7 +43,7 @@ func (s server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regis
 		return nil, errorInternal
 	}
 
-	hashedPasswd, err := passhash.HashPassword(in.Form.Password)
+	hashedPasswd, err := passhash.HashPassword(in.Password)
 	if nil != err {
 		s.logger.WithError(err).WithField("err_code", "E_HASH_USER_PASSWORD").Error("failed hashing user password")
 		return nil, errorInternal
@@ -51,10 +51,10 @@ func (s server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regis
 
 	user := repository.NewUserToSave{
 		ID:              userID,
-		Email:           in.Form.Email,
+		Email:           in.Email,
 		NormalizedEmail: normalizedForm.Email,
-		FirstName:       in.Form.FirstName,
-		LastName:        in.Form.LastName,
+		FirstName:       in.FirstName,
+		LastName:        in.LastName,
 		Password:        hashedPasswd,
 		RegisteredAt:    time.Now(),
 	}
