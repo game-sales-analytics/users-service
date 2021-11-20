@@ -14,23 +14,18 @@ service UsersService {
   rpc Authenticate(AuthenticateRequest) returns (AuthenticateReply);
 }
 
-message PingRequest {}
+message PingRequest {
+}
 
 message PingReply {
   bool pong = 1;
 }
 
 message LoginWithEmailRequest {
-  message User {
-    string email = 1;
-    string password = 2;
-    message ContextualInfo {
-      string ip = 1;
-      string device_user_agent = 2;
-    }
-    ContextualInfo contextual_info = 3;
-  }
-  User user = 1;
+  string email = 1;
+  string password = 2;
+  string ip = 3;
+  string device_user_agent = 4;
 }
 
 message LoginWithEmailReply {
@@ -65,7 +60,9 @@ message RegisterReply {
   RegisteredUser registered_user = 1;
 }
 
-message AuthenticateRequest { string token = 1; }
+message AuthenticateRequest {
+  string token = 1;
+}
 
 message AuthenticateReply {
   message AuthenticatedUser {

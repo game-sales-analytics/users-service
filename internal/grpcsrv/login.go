@@ -17,10 +17,10 @@ func (s server) LoginWithEmail(ctx context.Context, in *pb.LoginWithEmailRequest
 	s.logger.Debug("handling login request")
 
 	form := validate.LoginForm{
-		Email:           in.User.Email,
-		Password:        in.User.Password,
-		DeviceUserAgent: in.User.ContextualInfo.DeviceUserAgent,
-		IP:              in.User.ContextualInfo.Ip,
+		Email:           in.Email,
+		Password:        in.Password,
+		DeviceUserAgent: in.DeviceUserAgent,
+		IP:              in.Ip,
 	}
 	if err := s.validator.ValidateLoginForm(ctx, form); nil != err {
 		var validationErr *validate.ValidationError
@@ -33,11 +33,11 @@ func (s server) LoginWithEmail(ctx context.Context, in *pb.LoginWithEmailRequest
 	}
 
 	creds := auth.LoginWithEmailCreds{
-		Email:    in.User.Email,
-		Password: in.User.Password,
+		Email:    in.Email,
+		Password: in.Password,
 		LoginDefaultCreds: auth.LoginDefaultCreds{
-			UserIPAddress:       in.User.ContextualInfo.Ip,
-			UserDeviceUserAgent: in.User.ContextualInfo.DeviceUserAgent,
+			UserIPAddress:       in.Ip,
+			UserDeviceUserAgent: in.DeviceUserAgent,
 		},
 	}
 	loginRes, err := s.auth.LoginWithEmail(ctx, creds)
