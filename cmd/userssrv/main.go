@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"go.elastic.co/apm/module/apmlogrus"
 
 	"github.com/game-sales-analytics/users-service/internal/auth"
 	"github.com/game-sales-analytics/users-service/internal/config"
@@ -17,7 +16,6 @@ import (
 func main() {
 	logger := logrus.New()
 
-	logger.AddHook(&apmlogrus.Hook{})
 	// TODO: make level configurable
 	logger.SetLevel(logrus.TraceLevel)
 	logger.SetFormatter(&logrus.JSONFormatter{

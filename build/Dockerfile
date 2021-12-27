@@ -21,8 +21,6 @@ WORKDIR /
 COPY --from=build /app/bin/userssrv /userssrv
 COPY --from=build /app/bin/ping /ping
 
-HEALTHCHECK --interval=5s --timeout=2s --start-period=5s --retries=2 CMD [ "/ping", "userssrv:50050" ]
-
 EXPOSE ${PORT}
 
 USER nonroot:nonroot

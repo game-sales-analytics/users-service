@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"go.elastic.co/apm/module/apmmongo"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -35,8 +34,6 @@ func Connect(ctx context.Context, logger *logrus.Entry, cfg *config.DatabaseConf
 				Username:      cfg.Username,
 			})
 	}
-
-	clientOptions.SetMonitor(apmmongo.CommandMonitor())
 
 	logger.Trace("connecting database")
 	client, err := mongo.Connect(ctx, clientOptions)
