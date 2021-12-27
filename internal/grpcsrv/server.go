@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"github.com/sirupsen/logrus"
+	"go.elastic.co/apm/module/apmgrpc"
 	"google.golang.org/grpc"
 
 	"github.com/game-sales-analytics/users-service/internal/auth"
@@ -32,7 +33,10 @@ func (s server) Listen(host string, port uint) error {
 		s.logger.WithField("host", host).WithField("port", port).WithError(err).WithField("err_code", "E_SERVER_TCP_BIND").Error("failed to start listening at specified address")
 		return err
 	}
-	var opts []grpc.ServerOption
+	var opts []grpc.ServerOption = []grpc.ServerOption{
+		grpc.UnaryInterceptor(apmgrpc.NewUnaryServerInterceptor(apmgrpc.WithRecovery())),
+		grpc.StreamInterceptor(apmgrpc.NewStreamServerInterceptor()),
+	}
 	grpcServer := grpc.NewServer(opts...)
 	pb.RegisterUsersServiceServer(grpcServer, s)
 	return grpcServer.Serve(lis)
