@@ -10,6 +10,8 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	"github.com/sirupsen/logrus"
+
+	"github.com/game-sales-analytics/users-service/internal/constants"
 )
 
 func readEnvironmetVariablesOrUseDefaults(logger *logrus.Entry) (Config, error) {
@@ -98,14 +100,14 @@ func readEnvironmetVariablesOrUseDefaults(logger *logrus.Entry) (Config, error) 
 		logger.WithField("variable", "SENTRY_RELEASE").WithField("value", value).Debug("using provided Sentry Release environment variable")
 		conf.APM.Release = value
 	} else {
-		conf.APM.Release = "userssrv@3.0.3"
+		conf.APM.Release = constants.VERSION
 	}
 
 	if value, exists := os.LookupEnv("SENTRY_ENVIRONMENT"); exists && len(value) != 0 {
 		logger.WithField("variable", "SENTRY_ENVIRONMENT").WithField("value", value).Debug("using provided Sentry Environment environment variable")
 		conf.APM.Env = value
 	} else {
-		conf.APM.Env = "production"
+		conf.APM.Env = "prod"
 	}
 
 	return conf, nil
