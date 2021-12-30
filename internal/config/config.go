@@ -18,8 +18,15 @@ type JwtConfig struct {
 	Secret string
 }
 
+type APMConfig struct {
+	DSN     string
+	Env     string
+	Release string
+}
+
 type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	Jwt      JwtConfig
+	APM      APMConfig
 }

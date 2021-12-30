@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/sirupsen/logrus"
 
 	"github.com/game-sales-analytics/users-service/internal/auth"
@@ -38,11 +39,35 @@ func main() {
 		logger.WithError(err).Fatal("unable to load configuration")
 	}
 
-	logger.Trace("initializing database connection")
-	database, err := db.Connect(ctx, logger.WithField("srv", "db"), &conf.Database)
+	logger.Trace("initializing Sentry sdk")
+	err = sentry.Init(sentry.ClientOptions{
+		Dsn:              conf.APM.DSN,
+		Environment:      conf.APM.Env,
+		Release:          conf.APM.Release,
+		Debug:            true,
+		TracesSampleRate: 1.0,
+		SampleRate:       1.0,
+		AttachStacktrace: true,
+	})
 	if nil != err {
+		logger.WithError(err).Fatal("unable to initialize Sentry sdk")
+	}
+
+	defer sentry.Flush(4 * time.Second)
+	logger.Trace("Sentry sdk initialized")
+
+	span := sentry.StartSpan(ctx, "startup", sentry.TransactionName("service-startup"))
+
+	logger.Trace("initializing database connection")
+	child := span.StartChild("create-database-connection")
+	database, err := db.Connect(db.NewConnectContext(ctx, child), logger.WithField("srv", "db"), &conf.Database)
+	if nil != err {
+		defer child.Finish()
+
 		logger.WithError(err).Fatal("unable to connect to database")
 	}
+	child.Finish()
+
 	defer func() {
 		logger.Debug("closing database connection before exit")
 		if err := database.Disconnect(); nil != err {
@@ -53,6 +78,8 @@ func main() {
 
 	validator := validate.New(logger.WithField("srv", "validate"), &database.Repo)
 	authSrv := auth.New(&database.Repo, logger.WithField("srv", "auth"), &conf.Jwt)
+
+	span.Finish()
 
 	server := grpcsrv.New(logger.WithField("srv", "grpc"), &database.Repo, validator, authSrv)
 	logger.WithError(server.Listen(conf.Server.Host, conf.Server.Port)).Fatal("unable to start GRPC server")

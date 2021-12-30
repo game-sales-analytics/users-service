@@ -1,10 +1,12 @@
 package repository
 
 import (
-	"context"
 	"time"
 
+	"github.com/getsentry/sentry-go"
 	"go.mongodb.org/mongo-driver/bson"
+
+	"github.com/game-sales-analytics/users-service/internal/apm"
 )
 
 type NewUserLoginToSave struct {
@@ -15,7 +17,7 @@ type NewUserLoginToSave struct {
 	UserDeviceUserAgent string
 }
 
-func (r *Repo) SaveNewUserLogin(ctx context.Context, userLogin NewUserLoginToSave) error {
+func (r *Repo) SaveNewUserLogin(ctx DBOperationContext, userLogin NewUserLoginToSave) error {
 	doc := bson.D{
 		{Key: "id", Value: userLogin.ID},
 		{Key: "logged_in_at", Value: userLogin.LoggedInAt},
@@ -25,6 +27,19 @@ func (r *Repo) SaveNewUserLogin(ctx context.Context, userLogin NewUserLoginToSav
 			{Key: "device_agent", Value: userLogin.UserDeviceUserAgent},
 		}},
 	}
+
+	span := ctx.span.StartChild("insert-user-login-info")
+	span.Status = sentry.SpanStatusOK
 	_, err := r.collections.UserLogins.InsertOne(ctx, doc)
-	return err
+	if nil != err {
+		defer span.Finish()
+
+		span.Status = sentry.SpanStatusInternalError
+		log := r.logger.WithError(err).WithField("err_code", "E_SAVE_USER_LOGIN_ATTEMPT")
+		apm.SetSpanTagsFromLogEntry(span, log)
+		log.Error("failed saving user login attempt record")
+		return err
+	}
+
+	return nil
 }

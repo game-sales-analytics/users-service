@@ -4,7 +4,9 @@ go 1.17
 
 require (
 	github.com/dimuska139/go-email-normalizer v1.2.0
+	github.com/getsentry/sentry-go v0.12.0
 	github.com/gofrs/uuid v4.2.0+incompatible
+	github.com/google/uuid v1.3.0
 	github.com/lestrrat-go/jwx v1.2.14
 	github.com/rs/xid v1.3.0
 	github.com/segmentio/ksuid v1.0.4
@@ -36,5 +38,5 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/genproto v0.0.0-20211222154725-9823f7ba7562 // indirect
+	google.golang.org/genproto v0.0.0-20211223182754-3ac035c7e7cb // indirect
 )
