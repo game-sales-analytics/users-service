@@ -17,7 +17,7 @@ import (
 
 func (s server) LoginWithEmail(ctx context.Context, in *pb.LoginWithEmailRequest) (*pb.LoginWithEmailReply, error) {
 	s.logger.Debug("handling login request")
-	span := sentry.StartSpan(ctx, "authenticate", sentry.TransactionName("handle-login-with-email-request"))
+	span := sentry.StartSpan(ctx, "login-with-email", sentry.TransactionName("handle-login-with-email-request"))
 	span.Status = sentry.SpanStatusOK
 	defer span.Finish()
 
