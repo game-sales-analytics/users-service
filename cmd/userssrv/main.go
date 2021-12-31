@@ -40,11 +40,14 @@ func main() {
 	}
 
 	logger.Trace("initializing Sentry sdk")
+	sentryHTTPSyncTransport := sentry.NewHTTPSyncTransport()
+	sentryHTTPSyncTransport.Timeout = 3 * time.Second
 	err = sentry.Init(sentry.ClientOptions{
 		Dsn:              conf.APM.DSN,
 		Environment:      conf.APM.Env,
 		Release:          conf.APM.Release,
 		Debug:            true,
+		Transport:        sentryHTTPSyncTransport,
 		TracesSampleRate: 1.0,
 		SampleRate:       1.0,
 		AttachStacktrace: true,
