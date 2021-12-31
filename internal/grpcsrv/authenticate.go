@@ -15,7 +15,12 @@ import (
 )
 
 func (s server) Authenticate(ctx context.Context, in *pb.AuthenticateRequest) (*pb.AuthenticateReply, error) {
-	s.logger.Debug("handling authenticate request")
+	hub := sentry.GetHubFromContext(ctx)
+	if hub == nil {
+		hub = sentry.CurrentHub().Clone()
+		ctx = sentry.SetHubOnContext(ctx, hub)
+	}
+	defer apm.RecoverUnaryWithSentry(hub, ctx, in)
 	span := sentry.StartSpan(ctx, "authenticate", sentry.TransactionName("handle-authenticate-request"))
 	span.Status = sentry.SpanStatusOK
 	defer span.Finish()
@@ -27,6 +32,11 @@ func (s server) Authenticate(ctx context.Context, in *pb.AuthenticateRequest) (*
 		log := s.logger.WithError(err).WithField("err_code", "E_READ_OT_GENERATE_TRACE_ID")
 		apm.SetSpanTagsFromLogEntry(span, log)
 		log.Error("failed read or generating trace id from context")
+		hub.WithScope(func(scope *sentry.Scope) {
+			scope.SetLevel(sentry.LevelError)
+			scope.SetExtras(log.Data)
+			hub.CaptureException(err)
+		})
 
 		return nil, errorInternal
 	}
@@ -50,6 +60,11 @@ func (s server) Authenticate(ctx context.Context, in *pb.AuthenticateRequest) (*
 		log := s.logger.WithError(err).WithField("err_code", "E_VALIDATE_AUTHENTICATE_FORM")
 		apm.SetSpanTagsFromLogEntry(child, log)
 		log.Error("failed validating authenticate form")
+		hub.WithScope(func(scope *sentry.Scope) {
+			scope.SetLevel(sentry.LevelError)
+			scope.SetExtras(log.Data)
+			hub.CaptureException(err)
+		})
 		return nil, errorInternal
 	}
 	child.Finish()
@@ -69,6 +84,11 @@ func (s server) Authenticate(ctx context.Context, in *pb.AuthenticateRequest) (*
 		log := s.logger.WithError(err).WithField("err_code", "E_VERIFY_TOKEN")
 		apm.SetSpanTagsFromLogEntry(child, log)
 		log.Error("failed verifying user auth token")
+		hub.WithScope(func(scope *sentry.Scope) {
+			scope.SetLevel(sentry.LevelError)
+			scope.SetExtras(log.Data)
+			hub.CaptureException(err)
+		})
 		return nil, errorInternal
 	}
 	child.Finish()

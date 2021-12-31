@@ -19,7 +19,12 @@ import (
 )
 
 func (s server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterReply, error) {
-	s.logger.Debug("handling registration request")
+	hub := sentry.GetHubFromContext(ctx)
+	if hub == nil {
+		hub = sentry.CurrentHub().Clone()
+		ctx = sentry.SetHubOnContext(ctx, hub)
+	}
+	defer apm.RecoverUnaryWithSentry(hub, ctx, in)
 	span := sentry.StartSpan(ctx, "register", sentry.TransactionName("handle-register-request"))
 	span.Status = sentry.SpanStatusOK
 	defer span.Finish()
@@ -31,6 +36,11 @@ func (s server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regis
 		log := s.logger.WithError(err).WithField("err_code", "E_READ_OT_GENERATE_TRACE_ID")
 		apm.SetSpanTagsFromLogEntry(span, log)
 		log.Error("failed read or generating trace id from context")
+		hub.WithScope(func(scope *sentry.Scope) {
+			scope.SetLevel(sentry.LevelError)
+			scope.SetExtras(log.Data)
+			hub.CaptureException(err)
+		})
 
 		return nil, errorInternal
 	}
@@ -59,6 +69,12 @@ func (s server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regis
 		log := s.logger.WithError(err).WithField("err_code", "E_VALIDATE_REGISTER_FORM")
 		apm.SetSpanTagsFromLogEntry(child, log)
 		log.Error("failed validating register form")
+		hub.WithScope(func(scope *sentry.Scope) {
+			scope.SetLevel(sentry.LevelError)
+			scope.SetExtras(log.Data)
+			hub.CaptureException(err)
+		})
+
 		return nil, errorInternal
 	}
 	child.Finish()
@@ -73,6 +89,12 @@ func (s server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regis
 		log := s.logger.WithError(err).WithField("err_code", "E_GENERATE_USER_ID")
 		apm.SetSpanTagsFromLogEntry(child, log)
 		log.Error("failed generating ID for user")
+		hub.WithScope(func(scope *sentry.Scope) {
+			scope.SetLevel(sentry.LevelError)
+			scope.SetExtras(log.Data)
+			hub.CaptureException(err)
+		})
+
 		return nil, errorInternal
 	}
 	child.Finish()
@@ -87,6 +109,12 @@ func (s server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regis
 		log := s.logger.WithError(err).WithField("err_code", "E_HASH_USER_PASSWORD")
 		apm.SetSpanTagsFromLogEntry(child, log)
 		log.Error("failed hashing user password")
+		hub.WithScope(func(scope *sentry.Scope) {
+			scope.SetLevel(sentry.LevelError)
+			scope.SetExtras(log.Data)
+			hub.CaptureException(err)
+		})
+
 		return nil, errorInternal
 	}
 	child.Finish()
@@ -110,6 +138,12 @@ func (s server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regis
 		log := s.logger.WithError(err).WithField("err_code", "E_SAVE_USER")
 		apm.SetSpanTagsFromLogEntry(child, log)
 		log.Error("failed saving user")
+		hub.WithScope(func(scope *sentry.Scope) {
+			scope.SetLevel(sentry.LevelError)
+			scope.SetExtras(log.Data)
+			hub.CaptureException(err)
+		})
+
 		return nil, errorInternal
 	}
 	child.Finish()

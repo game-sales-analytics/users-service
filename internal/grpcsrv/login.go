@@ -16,7 +16,12 @@ import (
 )
 
 func (s server) LoginWithEmail(ctx context.Context, in *pb.LoginWithEmailRequest) (*pb.LoginWithEmailReply, error) {
-	s.logger.Debug("handling login request")
+	hub := sentry.GetHubFromContext(ctx)
+	if hub == nil {
+		hub = sentry.CurrentHub().Clone()
+		ctx = sentry.SetHubOnContext(ctx, hub)
+	}
+	defer apm.RecoverUnaryWithSentry(hub, ctx, in)
 	span := sentry.StartSpan(ctx, "login-with-email", sentry.TransactionName("handle-login-with-email-request"))
 	span.Status = sentry.SpanStatusOK
 	defer span.Finish()
@@ -28,6 +33,11 @@ func (s server) LoginWithEmail(ctx context.Context, in *pb.LoginWithEmailRequest
 		log := s.logger.WithError(err).WithField("err_code", "E_READ_OT_GENERATE_TRACE_ID")
 		apm.SetSpanTagsFromLogEntry(span, log)
 		log.Error("failed read or generating trace id from context")
+		hub.WithScope(func(scope *sentry.Scope) {
+			scope.SetLevel(sentry.LevelError)
+			scope.SetExtras(log.Data)
+			hub.CaptureException(err)
+		})
 
 		return nil, errorInternal
 	}
@@ -54,6 +64,11 @@ func (s server) LoginWithEmail(ctx context.Context, in *pb.LoginWithEmailRequest
 		log := s.logger.WithError(err).WithField("err_code", "E_VALIDATE_LOGIN_FORM")
 		apm.SetSpanTagsFromLogEntry(child, log)
 		log.Error("failed validating login form")
+		hub.WithScope(func(scope *sentry.Scope) {
+			scope.SetLevel(sentry.LevelError)
+			scope.SetExtras(log.Data)
+			hub.CaptureException(err)
+		})
 		return nil, errorInternal
 	}
 	child.Finish()
@@ -82,6 +97,11 @@ func (s server) LoginWithEmail(ctx context.Context, in *pb.LoginWithEmailRequest
 		log := s.logger.WithError(err).WithField("err_code", "E_LOGIN_WITH_EMAIL")
 		apm.SetSpanTagsFromLogEntry(child, log)
 		log.Error("failed logging user in by email")
+		hub.WithScope(func(scope *sentry.Scope) {
+			scope.SetLevel(sentry.LevelError)
+			scope.SetExtras(log.Data)
+			hub.CaptureException(err)
+		})
 		return nil, errorInternal
 	}
 	child.Finish()
