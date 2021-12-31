@@ -48,6 +48,7 @@ func main() {
 		Release:          conf.APM.Release,
 		Debug:            true,
 		Transport:        sentryHTTPSyncTransport,
+		ServerName:       "internal-sentry",
 		TracesSampleRate: 1.0,
 		SampleRate:       1.0,
 		AttachStacktrace: true,
