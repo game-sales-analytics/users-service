@@ -192,6 +192,7 @@ func (r *Repo) userWithFilterExists(ctx DBOperationContext, filter bson.M) (bool
 		log.Error("failed retrieving user document")
 		return false, err
 	}
+	span.Finish()
 
 	span = ctx.span.StartChild("decode-queried-user")
 	span.Status = sentry.SpanStatusOK
